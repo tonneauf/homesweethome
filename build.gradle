@@ -1,0 +1,13 @@
+plugins {
+    id 'org.jetbrains.kotlin.js' version '1.5.21' apply false
+}
+
+subprojects {
+    group 'app.tonneauf.homesweethome'
+    version '1.0-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
