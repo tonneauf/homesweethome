@@ -2,6 +2,8 @@ package search.lbc
 
 import crawler.puppeteer.Browser
 import crawler.puppeteer.Page
+import crawler.puppeteer.searchHtmlElements
+import crawler.puppeteer.searchUrls
 import kotlinx.coroutines.await
 import search.RealEstateSeeker
 import search.SearchOptions
@@ -14,25 +16,35 @@ class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
     override suspend fun search(searchOptions: SearchOptions): List<PropertyAdvertisement> {
         val searchPage = crawler.newPage().await()
 
-        searchPage.goto("$baseSearchURL?category=9&locations=${searchOptions.location}")
+        searchPage.goto(
+            "$baseSearchURL?category=9" +
+                    "&locations=${searchOptions.location}" +
+                    "&price=min-${searchOptions.maxPrice}" +
+                    "&square=${searchOptions.minSurfaceArea}-max"
+        )
             .await()
 
-        searchHtmlElements(searchPage, "[data-qa-id='aditem_price']")
+        val ads = mutableListOf<PropertyAdvertisement>()
 
-        return listOf()
-    }
+        val titles = getTitlesFromSearchPage(searchPage)
+        val urls = getURLsFromSearchPage(searchPage)
 
-    private suspend fun searchHtmlElement(page : Page, cssSelector : String) : String? {
-        return page.eval(cssSelector) { element -> element.textContent }.await()
-    }
+        if (titles.size != urls.size) {
+            throw RuntimeException("should have the same number of title and URL")
+        }
 
-    private suspend fun searchHtmlElements(page: Page, cssSelector: String) : Array<String?> {
-        return page.evalMultiple(cssSelector) { elements ->
-            var strings: Array<String?> = arrayOf()
-            for (element in elements) {
-                strings += element.textContent
+        for (i in titles.indices) {
+            if (titles[i] != null && urls[i] != null) {
+                ads += PropertyAdvertisement(titles[i]!!, urls[i]!!)
             }
-            strings
-        }.await()
+        }
+
+        return ads
     }
+
+    private suspend fun getURLsFromSearchPage(searchPage: Page) =
+        searchUrls(searchPage, "[data-qa-id='aditem_container']")
+
+    private suspend fun getTitlesFromSearchPage(searchPage: Page) =
+        searchHtmlElements(searchPage, "[data-qa-id='aditem_title']")
 }
