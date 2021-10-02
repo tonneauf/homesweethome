@@ -3,19 +3,20 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
 
+import crawler.puppeteer.require
+import search.SearchOptions
+import search.lbc.LBCSeeker
+
 fun main() {
 
     @OptIn(DelicateCoroutinesApi::class)
     GlobalScope.launch {
 
-        val puppeteer = puppeteer.require("puppeteer-firefox")
+        val puppeteer = require("puppeteer-firefox")
         val browser = puppeteer.launch().await()
 
-        val page = browser.newPage().await()
-
-        page.goto("www.google.com").await()
-
-        console.log(page.title().await())
+        val seeker = LBCSeeker(browser)
+        seeker.search(SearchOptions("Paris"))
 
         browser.close().await()
     }
