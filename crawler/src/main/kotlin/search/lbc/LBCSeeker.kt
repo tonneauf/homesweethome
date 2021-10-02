@@ -2,16 +2,18 @@ package search.lbc
 
 import crawler.puppeteer.Browser
 import crawler.puppeteer.Page
-import crawler.puppeteer.searchHtmlElements
+import crawler.puppeteer.searchHtmlElement
 import crawler.puppeteer.searchUrls
 import kotlinx.coroutines.await
 import search.RealEstateSeeker
 import search.SearchOptions
 import search.model.PropertyAdvertisement
+import util.extractNumber
 
 class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
 
-    private val baseSearchURL: String = "https://www.leboncoin.fr/recherche"
+    private val lbcUrl = "https://www.leboncoin.fr"
+    private val baseSearchURL: String = "$lbcUrl/recherche"
 
     override suspend fun search(searchOptions: SearchOptions): List<PropertyAdvertisement> {
         val searchPage = crawler.newPage().await()
@@ -24,27 +26,49 @@ class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
         )
             .await()
 
-        val ads = mutableListOf<PropertyAdvertisement>()
-
-        val titles = getTitlesFromSearchPage(searchPage)
         val urls = getURLsFromSearchPage(searchPage)
 
-        if (titles.size != urls.size) {
-            throw RuntimeException("should have the same number of title and URL")
-        }
+        return extractAds(urls)
+    }
 
-        for (i in titles.indices) {
-            if (titles[i] != null && urls[i] != null) {
-                ads += PropertyAdvertisement(titles[i]!!, urls[i]!!)
+    private suspend fun extractAds(urls: List<String?>): List<PropertyAdvertisement> {
+        val ads = mutableListOf<PropertyAdvertisement>()
+        for (i in 0..0) {
+            if (urls[i] != null) {
+                ads += extractAd(lbcUrl + urls[i]!!)
             }
         }
-
         return ads
+    }
+
+    private suspend fun extractAd(url: String): PropertyAdvertisement {
+        val adPage = crawler.newPage().await()
+        adPage.goto(url).await()
+
+        val title = getTitle(adPage)
+        val surfaceArea = getSurfaceArea(adPage)
+        val price = getPrice(adPage)
+
+        return PropertyAdvertisement(title!!, url, surfaceArea, price)
     }
 
     private suspend fun getURLsFromSearchPage(searchPage: Page) =
         searchUrls(searchPage, "[data-qa-id='aditem_container']")
 
-    private suspend fun getTitlesFromSearchPage(searchPage: Page) =
-        searchHtmlElements(searchPage, "[data-qa-id='aditem_title']")
+    private suspend fun getTitle(adPage: Page) =
+        searchHtmlElement(
+            adPage,
+            "[data-qa-id='adview_spotlight_description_container'] > div:nth-child(1) > div:nth-child(1) > h1"
+        )
+
+    private suspend fun getSurfaceArea(adPage: Page) =
+        extractNumber(
+            searchHtmlElement(
+                adPage,
+                "[data-qa-id='adview_spotlight_description_container'] > div:nth-child(2) > div:nth-child(1) > span:nth-child(2)"
+            )!!
+        )
+
+    private suspend fun getPrice(adPage: Page) =
+        extractNumber(searchHtmlElement(adPage, "[data-qa-id='adview_price']")!!)
 }
