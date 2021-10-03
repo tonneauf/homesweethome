@@ -16,7 +16,9 @@ fun main() {
         val browser = puppeteer.launch().await()
 
         val seeker = LBCSeeker(browser)
-        seeker.search(SearchOptions("Paris"))
+        val searchOptions = SearchOptions("Paris__48.851498164430275_2.3494660290817677_10000")
+
+        seeker.search(searchOptions)
 
         browser.close().await()
     }
