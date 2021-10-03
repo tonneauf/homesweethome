@@ -5,6 +5,7 @@ data class PropertyAdvertisement(
     val url: String,
     val surfaceArea: Int,
     val price: Int,
-    val photos: List<String?>
+    val photos: List<String?>,
+    val description: String
 )
 

@@ -49,8 +49,9 @@ class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
         val surfaceArea = getSurfaceArea(adPage)
         val price = getPrice(adPage)
         val photos = getPhotos(adPage)
+        val description = getDescription(adPage)
 
-        return PropertyAdvertisement(title!!, url, surfaceArea, price, photos)
+        return PropertyAdvertisement(title!!, url, surfaceArea, price, photos, description!!)
     }
 
     private suspend fun getURLsFromSearchPage(searchPage: Page) =
@@ -75,4 +76,7 @@ class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
 
     private suspend fun getPhotos(adPage: Page) =
         searchAttributes(adPage, "src", "[data-qa-id='adview_spotlight_container'] picture img")
+
+    private suspend fun getDescription(adPage: Page) =
+        searchHtmlElement(adPage, "[data-qa-id='adview_description_container']")
 }
