@@ -3,7 +3,7 @@ package search.lbc
 import crawler.puppeteer.Browser
 import crawler.puppeteer.Page
 import crawler.puppeteer.searchHtmlElement
-import crawler.puppeteer.searchUrls
+import crawler.puppeteer.searchAttributes
 import kotlinx.coroutines.await
 import search.RealEstateSeeker
 import search.SearchOptions
@@ -48,12 +48,13 @@ class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
         val title = getTitle(adPage)
         val surfaceArea = getSurfaceArea(adPage)
         val price = getPrice(adPage)
+        val photos = getPhotos(adPage)
 
-        return PropertyAdvertisement(title!!, url, surfaceArea, price)
+        return PropertyAdvertisement(title!!, url, surfaceArea, price, photos)
     }
 
     private suspend fun getURLsFromSearchPage(searchPage: Page) =
-        searchUrls(searchPage, "[data-qa-id='aditem_container']")
+        searchAttributes(searchPage, "href", "[data-qa-id='aditem_container']")
 
     private suspend fun getTitle(adPage: Page) =
         searchHtmlElement(
@@ -71,4 +72,7 @@ class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
 
     private suspend fun getPrice(adPage: Page) =
         extractNumber(searchHtmlElement(adPage, "[data-qa-id='adview_price']")!!)
+
+    private suspend fun getPhotos(adPage: Page) =
+        searchAttributes(adPage, "src", "[data-qa-id='adview_spotlight_container'] picture img")
 }
