@@ -8,7 +8,6 @@ import kotlinx.coroutines.await
 import search.RealEstateSeeker
 import search.SearchOptions
 import search.model.PropertyAdvertisement
-import util.extractNumber
 
 class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
 
@@ -65,7 +64,7 @@ class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
         )
 
     private suspend fun getSurfaceArea(adPage: Page) =
-        extractNumber(
+        util.extractNumber(
             searchHtmlElement(
                 adPage,
                 "[data-qa-id='adview_spotlight_description_container'] > div:nth-child(2) > div:nth-child(1) > span:nth-child(2)"
@@ -73,7 +72,7 @@ class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
         )
 
     private suspend fun getPrice(adPage: Page) =
-        extractNumber(searchHtmlElement(adPage, "[data-qa-id='adview_price']")!!)
+        util.extractNumber(searchHtmlElement(adPage, "[data-qa-id='adview_price']")!!)
 
     private suspend fun getPhotos(adPage: Page) =
         searchAttributes(adPage, "src", "[data-qa-id='adview_spotlight_container'] picture img")
@@ -82,7 +81,7 @@ class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
         searchHtmlElement(adPage, "[data-qa-id='adview_description_container']")
 
     private suspend fun getRoomNumber(adPage: Page) =
-        extractNumber(
+        util.extractNumber(
             searchHtmlElement(
                 adPage,
                 "[data-qa-id='adview_spotlight_description_container'] > div:nth-child(2) > div:nth-child(1) > span:nth-child(1)"
