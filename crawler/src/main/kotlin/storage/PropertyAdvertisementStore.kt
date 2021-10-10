@@ -2,6 +2,7 @@ package storage
 
 import database.Collection
 import database.Database
+import database.ObjectId
 import kotlinx.coroutines.await
 import search.model.PropertyAdvertisement
 
@@ -21,8 +22,9 @@ class PropertyAdvertisementStore(database: Database) {
         collection.find().toArray().await() as Array<PropertyAdvertisement>
 
     suspend fun store(ads: List<PropertyAdvertisement>) {
-        for (ad in ads) {
-            ad._id = collection.insertOne(ad).await().insertedId
+        val insertedIds = collection.insertMany(ads.toTypedArray()).await().insertedIds
+        for (i in ads.indices) {
+            ads[i]._id = insertedIds["$i"] as ObjectId
         }
     }
 }

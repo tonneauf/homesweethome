@@ -1,6 +1,7 @@
 @file:JsModule("mongodb")
 package database
 
+import kotlin.js.Json
 import kotlin.js.Promise
 
 external class MongoClient(url : String) {
@@ -14,11 +15,16 @@ external class Database {
 
 external class Collection {
     fun find() : FindCursor
-    fun insertOne(document : Any) : Promise<InsertManyResult>
+    fun insertOne(document : Any) : Promise<InsertOneResult>
+    fun insertMany(documents : Array<Any>) : Promise<InsertManyResult>
+}
+
+external class InsertOneResult {
+    val insertedId : ObjectId
 }
 
 external class InsertManyResult {
-    val insertedId : ObjectId
+    val insertedIds : Json
 }
 
 external class FindCursor {
