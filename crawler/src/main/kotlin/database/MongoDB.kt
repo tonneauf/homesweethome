@@ -7,6 +7,7 @@ import kotlin.js.Promise
 external class MongoClient(url : String) {
     fun connect() : Promise<MongoClient>
     fun db(dbName : String) : Database
+    fun close() : Promise<Nothing>
 }
 
 external class Database {

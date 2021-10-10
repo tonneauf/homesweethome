@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import search.SearchOptions
 import search.lbc.LBCSeeker
 import storage.PropertyAdvertisementStore
+import storage.closeDatabaseConnection
 import storage.newDatabaseConnection
 
 fun main() {
@@ -27,9 +28,7 @@ fun main() {
         val propertyAdvertisementStore = PropertyAdvertisementStore(database)
         propertyAdvertisementStore.store(adsToStore)
 
-        for (ad in propertyAdvertisementStore.findAll()) {
-            console.log(ad)
-        }
+        closeDatabaseConnection()
     }
 
 }
