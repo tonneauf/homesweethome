@@ -5,11 +5,11 @@ import crawler.puppeteer.Page
 import crawler.puppeteer.searchAttributes
 import crawler.puppeteer.searchHtmlElement
 import kotlinx.coroutines.await
-import search.RealEstateSeeker
+import search.RealEstateSupplier
 import search.SearchOptions
 import search.model.PropertyAdvertisement
 
-class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
+class LBCSupplier(private val crawler: Browser) : RealEstateSupplier {
 
     private val lbcUrl = "https://www.leboncoin.fr"
     private val baseSearchURL: String = "$lbcUrl/recherche"
@@ -27,12 +27,12 @@ class LBCSeeker(private val crawler: Browser) : RealEstateSeeker {
 
         val urls = getURLsFromSearchPage(searchPage)
 
-        return extractAds(urls)
+        return extractAds(urls, searchOptions.maxResult)
     }
 
-    private suspend fun extractAds(urls: List<String?>): List<PropertyAdvertisement> {
+    private suspend fun extractAds(urls: List<String?>, maxResult: Int = urls.size): List<PropertyAdvertisement> {
         val ads = mutableListOf<PropertyAdvertisement>()
-        for (i in 0 until ads.size) {
+        for (i in 0 until maxResult) {
             if (urls[i] != null) {
                 ads += extractAd(lbcUrl + urls[i]!!)
             }

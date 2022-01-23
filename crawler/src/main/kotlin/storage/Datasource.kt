@@ -14,6 +14,6 @@ suspend fun newDatabaseConnection(): Database {
     return mongoClient.db(DATABASE_NAME)
 }
 
-suspend fun closeDatabaseConnection() {
+suspend fun closeDatabaseConnection(): Nothing {
     mongoClient.close().await()
 }
